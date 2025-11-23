@@ -1,14 +1,2 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
 .DS_Store
-inst/doc
 
-.env
-logs/
-__pycache__/
-docs
-
-# Temporary files
-inst/tmp/
