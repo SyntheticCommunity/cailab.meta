@@ -23,5 +23,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUBACTIONS }}
         run: |
           cd packages/cailab.amplicon
-          git remote add public https://${GH_TOKEN}@github.com/SyntheticCommunity/cailab.amplicon.git
+          git remote add public git@github.com:SyntheticCommunity/cailab.amplicon.git
           git push public HEAD:main --force
