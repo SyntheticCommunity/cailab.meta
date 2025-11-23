@@ -4,7 +4,7 @@
 library(yaml)
 library(usethis)
 
-create_cailab_package <- function(pkg_name, meta_path = "config/cailab-meta.yml") {
+create_cailab_package <- function(pkg_name, meta_path = xfun::magic_path("cailab-meta.yml")) {
   # 读取配置
   meta <- read_yaml(meta_path)
 
