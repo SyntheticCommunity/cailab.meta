@@ -2,6 +2,7 @@ name: Sync cailab.amplicon to standalone repo
 
 on:
   push:
+    branches: [ main ] # 建议加上分支限制
     paths:
       - 'packages/cailab.amplicon/**'
 
@@ -10,18 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUBACTIONS }}
-
-      - name: Setup Git
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-
-      - name: Push to cailab.amplicon repo
+      
+      - name: Pushes to external repository
+        uses: cpina/github-action-push-to-another-repository@main
         env:
-          GH_TOKEN: ${{ secrets.GITHUBACTIONS }}
-        run: |
-          cd packages/cailab.amplicon
-          git remote add public git@github.com:SyntheticCommunity/cailab.amplicon.git
-          git push public HEAD:main --force
+          # 这里的 SSH_DEPLOY_KEY 需要在目标仓库设置（如果用SSH）
+          # 或者使用 API_TOKEN_GITHUB (HTTPS方式)
+          API_TOKEN_GITHUB: ${{ secrets.GITHUBACTIONS }}
+        with:
+          # 源目录
+          source-directory: 'packages/cailab.amplicon'
+          # 目标用户名/组织名
+          destination-github-username: 'SyntheticCommunity'
+          # 目标仓库名
+          destination-repository-name: 'cailab.amplicon'
+          # 目标分支
+          target-branch: main
+          # 提交时的邮箱
+          user-email: action@github.com
+          # 提交时的用户名
+          user-name: GitHub Action
