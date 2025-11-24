@@ -2,7 +2,7 @@ name: Sync cailab.amplicon to standalone repo
 
 on:
   push:
-    branches: [ main ] # 建议加上分支限制
+    branches: [ master ] # 建议加上分支限制
     paths:
       - 'packages/cailab.amplicon/**'
 
