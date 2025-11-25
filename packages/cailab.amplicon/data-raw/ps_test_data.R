@@ -25,16 +25,18 @@ rownames(tax_mat) <- rownames(otu_mat)
 colnames(tax_mat) <- "Genus"
 
 # 5. 模拟元数据 (Sample Data)
-# 制造一种情况：Sample1-25 是 "Control"，Sample26-50 是 "Treat"
+# 制造一种情况：Sample1-25 是 "Ctrl"，Sample26-50 是 "Treat"
 meta_df <- data.frame(
-  Group = rep(c("Control", "Treat"), each = 25),
+  Group = sample(c("Ctrl", "Treat"), 50, replace = TRUE),
+  Source = sample(c("Fecal", "Oral"), 50, replace = TRUE),
   row.names = colnames(otu_mat)
 )
 
 # 6. 注入信号 (关键步骤)
 # 让 Genus1 (对应 OTU1) 在 "Treat" 组 (后25个样本) 丰度显著更高
 # 这样在测试 GSEA 时，我们预期 "Group_Treat" 会显著富集
-otu_mat[1, 26:50] <- otu_mat[1, 26:50] + 50
+grp_treat = meta_df$Group == "Treat"
+otu_mat[1, grp_treat] <- otu_mat[1, grp_treat] + runif(sum(grp_treat), 20, 50)
 
 # 7. 构建 phyloseq 对象
 ps_test_data <- phyloseq(
