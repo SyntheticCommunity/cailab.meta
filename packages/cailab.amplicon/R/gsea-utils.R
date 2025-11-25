@@ -64,16 +64,15 @@ get_sorted_abundance_vector <- function(ps, target_taxon, tax_rank) {
 
 #' 获取样本特征集合列表
 #'
-#' 将样本元数据（Metadata）中的某一列转换为样本 ID 的列表（List of Sets），
+#' 将样本元数据（Metadata）中的一列或多列转换为样本 ID 的列表（List of Sets），
 #' 用于 GSEA 分析中的 "Pathways"。
 #'
 #' @param ps A `phyloseq` object.
-#' @param sample_feat A character string. The column name in sample_data to use for grouping.
-#' @param min_size Integer. Minimum number of samples required in a group to be included. Default is 3.
+#' @param cols A character vector. The column name(s) in sample_data to use for grouping.
 #'
 #' @return A list of character vectors. Each element is a vector of sample IDs belonging to a metadata group.
 #' @export
-get_sample_feature_sets <- function(ps, sample_feat, min_size = 3) {
+get_sample_feature_sets <- function(ps, cols) {
   
   # 1. 提取样本元数据
   if (is.null(phyloseq::sample_data(ps, errorIfNULL = FALSE))) {
@@ -82,39 +81,39 @@ get_sample_feature_sets <- function(ps, sample_feat, min_size = 3) {
   
   meta_df <- as(phyloseq::sample_data(ps), "data.frame")
   
-  # 检查列名是否存在
-  if (!sample_feat %in% colnames(meta_df)) {
-    stop(paste("Feature", sample_feat, "not found in sample_data."))
+  # 检查所有列名是否存在
+  missing_cols <- setdiff(cols, colnames(meta_df))
+  if (length(missing_cols) > 0) {
+    stop(paste("Features not found in sample_data:", paste(missing_cols, collapse = ", ")))
   }
   
-  # 2. 提取目标列并处理缺失值
-  # 我们关注样本ID (rownames) 和 目标特征列
-  target_col <- meta_df[[sample_feat]]
-  sample_ids <- rownames(meta_df)
+  all_feature_sets <- list()
   
-  # 移除该特征为 NA 的样本
-  valid_idx <- !is.na(target_col)
-  target_col <- target_col[valid_idx]
-  sample_ids <- sample_ids[valid_idx]
-  
-  # 3. 构建集合 (List of Sets)
-  # 使用 split 函数快速将样本 ID 按特征分组
-  # 如果特征是连续变量，建议先在外部离散化，或者在这里强制转为 factor
-  # 这里为了通用性，强制转换为字符型分组
-  feature_sets <- split(sample_ids, as.factor(target_col))
-  
-  # 4. 过滤过小的集合
-  # 移除样本数少于 min_size 的组
-  set_sizes <- vapply(feature_sets, length, numeric(1))
-  feature_sets <- feature_sets[set_sizes >= min_size]
-  
-  if (length(feature_sets) == 0) {
-    warning("No feature sets remained after filtering by min_size.")
+  for (sample_feat in cols) {
+    # 2. 提取目标列并处理缺失值
+    # 我们关注样本ID (rownames) 和 目标特征列
+    target_col <- meta_df[[sample_feat]]
+    sample_ids <- rownames(meta_df)
+    
+    # 移除该特征为 NA 的样本
+    valid_idx <- !is.na(target_col)
+    target_col <- target_col[valid_idx]
+    sample_ids <- sample_ids[valid_idx]
+    
+    # 3. 构建集合 (List of Sets)
+    # 使用 split 函数快速将样本 ID 按特征分组
+    # 如果特征是连续变量，建议先在外部离散化，或者在这里强制转为 factor
+    # 这里为了通用性，强制转换为字符型分组
+    feature_sets <- split(sample_ids, as.factor(target_col))
+    
+    if (length(feature_sets) > 0) {
+      # 5. 优化命名
+      # 给集合名字加上特征前缀，防止混淆 (例如: "Group_Control")
+      names(feature_sets) <- paste0(sample_feat, "_", names(feature_sets))
+      
+      all_feature_sets <- c(all_feature_sets, feature_sets)
+    }
   }
   
-  # 5. 优化命名
-  # 给集合名字加上特征前缀，防止混淆 (例如: "Group_Control")
-  names(feature_sets) <- paste0(sample_feat, "_", names(feature_sets))
-  
-  return(feature_sets)
+  return(all_feature_sets)
 }
