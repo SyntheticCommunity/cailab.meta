@@ -1,0 +1,3 @@
+[submodule "packages/cailab.amplicon"]
+	path = packages/cailab.amplicon
+	url = git@github.com:SyntheticCommunity/cailab.amplicon.git
