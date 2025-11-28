@@ -39,3 +39,7 @@ packages:
   cailab.statplot:
     Title: "Statistical Plotting Helpers"
     Description: "Enhanced wrappers around ggplot2, lattice, and base graphics for common bio-stats tasks."
+
+  cailab.youtuber:
+    Title: "Download Youtube Video and Summarize Its content"
+    Description: "Provides tools to interact with YouTube videos and playlists. It allows users to download subtitles using 'yt-dlp', parse subtitle files, and generate concise summaries of video content using Large Language Models (LLMs)."
